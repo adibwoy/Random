@@ -1,4 +1,5 @@
 .slider {
+    position: relative;
     display: inline-block;
     width: 100%;
     height: 2px;
@@ -7,9 +8,12 @@
 }
 
 .slider-thumb {
+    position: absolute;
     padding: 0;
     margin: 0;
     border: 1px solid blue;
     height: 24px;
     width: 12px;
+    transform: translateY(-50%);
+    cursor: pointer;
 }

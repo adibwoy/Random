@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, Input, ViewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, Input, NgZone, Renderer2, ViewChild} from '@angular/core';
 import {DragDispatcher} from "clarity-angular/data/datagrid/providers/drag-dispatcher"
 import {Subscription} from "rxjs/Subscription";
 
@@ -11,16 +11,13 @@ import {Subscription} from "rxjs/Subscription";
 export class SliderComponent implements AfterViewInit {
 
     private subscriptions: Subscription[] = [];
-    private _translateX: number = 0;
     private _sliderWidth: number = 0;
     private _slider: any;
     private _value: number = 0;
 
     onDragStartPosition: number;
-    onDragEndPosition: number;
-    onDragDistance: number;
 
-    constructor(private dragDispatcher: DragDispatcher) {
+    constructor(private _ngZone: NgZone, private dragDispatcher: DragDispatcher, private renderer: Renderer2) {
         this.subscriptions.push(
             this.dragDispatcher.onDragStart.subscribe(($event) => {
                 this.onDragStartPosition = $event.screenX;
@@ -29,15 +26,11 @@ export class SliderComponent implements AfterViewInit {
 
         this.subscriptions.push(
             this.dragDispatcher.onDragMove.subscribe(($event) => {
-                //this.onMove($event.screenX);
-                console.log(this.value);
+                this.onMove($event.clientX);
             }));
 
         this.subscriptions.push(
             this.dragDispatcher.onDragEnd.subscribe(($event) => {
-                this.onDragEndPosition = $event.screenX;
-                this.onDragDistance = this.onDragEndPosition - this.onDragStartPosition;
-                this.onMoveEnd(this.onDragDistance);
             }));
     }
 
@@ -61,25 +54,14 @@ export class SliderComponent implements AfterViewInit {
         this._slider = value;
     }
 
-    get translateX(): number {
-        return this._translateX;
-    }
-
     ngAfterViewInit() {
         this._sliderWidth = this._slider.nativeElement.getBoundingClientRect().width;
     }
 
-    get translateValue(): string {
-        console.log("Translate Value");
-        return "translate3d(" + this.value + "px" + ", -50%, 0)";
-    }
-
     onMove(value: number): void {
-        console.log("On Move");
-        this.value = value;
-    }
-
-    onMoveEnd(value: number): void {
-        this.value += value;
+        console.log("Set Value", value);
+        this._ngZone.runOutsideAngular(() => {
+            this.renderer.setStyle(this.dragDispatcher.handleRef.nativeElement, "left", value + "px");
+        });
     }
 }
