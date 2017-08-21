@@ -16,10 +16,28 @@ export class SliderComponent implements AfterViewInit {
     private _slider: any;
     private _value: number = 0;
 
+    onDragStartPosition: number;
+    onDragEndPosition: number;
+    onDragDistance: number;
+
     constructor(private dragDispatcher: DragDispatcher) {
         this.subscriptions.push(
+            this.dragDispatcher.onDragStart.subscribe(($event) => {
+                this.onDragStartPosition = $event.screenX;
+                console.log(this.onDragStartPosition);
+            }));
+
+        this.subscriptions.push(
             this.dragDispatcher.onDragMove.subscribe(($event) => {
-                this.onMove($event.clientX);
+                //this.onMove($event.screenX);
+                console.log(this.value);
+            }));
+
+        this.subscriptions.push(
+            this.dragDispatcher.onDragEnd.subscribe(($event) => {
+                this.onDragEndPosition = $event.screenX;
+                this.onDragDistance = this.onDragEndPosition - this.onDragStartPosition;
+                this.onMoveEnd(this.onDragDistance);
             }));
     }
 
@@ -52,10 +70,16 @@ export class SliderComponent implements AfterViewInit {
     }
 
     get translateValue(): string {
+        console.log("Translate Value");
         return "translate3d(" + this.value + "px" + ", -50%, 0)";
     }
 
     onMove(value: number): void {
+        console.log("On Move");
         this.value = value;
+    }
+
+    onMoveEnd(value: number): void {
+        this.value += value;
     }
 }
