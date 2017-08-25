@@ -27,7 +27,7 @@ export class SliderComponent {
     constructor(private _ngZone: NgZone, private dragDispatcher: DragDispatcher, private renderer: Renderer2) {
 
         this.subscriptions.push(
-            this.dragDispatcher.onDragStart.subscribe(($event) => {
+            this.dragDispatcher.onDragStart.subscribe(() => {
                 this._sliderClientRect = this._slider.nativeElement.getBoundingClientRect();
                 console.log(this.sliderLeft);
                 console.log(this.sliderRight);
@@ -44,10 +44,6 @@ export class SliderComponent {
             }));
     }
 
-    get value(): number {
-        return this._value;
-    }
-
     @Input("clrValue")
     set value(val: number) {
         this._value = val;
@@ -59,6 +55,10 @@ export class SliderComponent {
         this.dragDispatcher.addDragListener();
     }
 
+    get thumbElement(): any {
+        return this.dragDispatcher.handleRef.nativeElement;
+    }
+
     @ViewChild("slider")
     set slider(value: ElementRef) {
         this._slider = value;
@@ -66,7 +66,10 @@ export class SliderComponent {
 
     onMove(value: number): void {
         this._ngZone.runOutsideAngular(() => {
-            this.renderer.setStyle(this.dragDispatcher.handleRef.nativeElement, "left", value + "px");
+            this
+                .renderer
+                .setStyle(
+                    this.thumbElement, "transform", `translate3d(${value}px, -50%, 0)`);
         });
     }
 }
