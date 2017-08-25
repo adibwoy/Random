@@ -41,14 +41,20 @@ export class SliderComponent {
                 if ((clientX < 0) || (clientX > this.pathLength)) {
                     return;
                 } else {
-                    this.onMove(clientX);
+                    this.value = clientX;
+                    this.onMove(this.value);
                 }
             }));
     }
 
     @Input("clrValue")
     set value(val: number) {
+        // TODO: Add type guards for left and right value
         this._value = val;
+        this
+            .renderer
+            .setStyle(
+                this.thumbElement, "transform", `translate3d(${val}px, -50%, 0)`);
     }
 
     @ViewChild("thumb")
