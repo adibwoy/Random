@@ -24,19 +24,21 @@ export class SliderComponent {
         return this._sliderClientRect.right;
     }
 
+    get pathLength(): number {
+        return (this.sliderRight - this.sliderLeft - this.thumbWidth);
+    }
+
     constructor(private _ngZone: NgZone, private dragDispatcher: DragDispatcher, private renderer: Renderer2) {
 
         this.subscriptions.push(
             this.dragDispatcher.onDragStart.subscribe(() => {
                 this._sliderClientRect = this._slider.nativeElement.getBoundingClientRect();
-                console.log(this.sliderLeft);
-                console.log(this.sliderRight);
             }));
 
         this.subscriptions.push(
             this.dragDispatcher.onDragMove.subscribe(($event) => {
-                let clientX: any = $event.clientX;
-                if ((clientX < this.sliderLeft) || (clientX > this.sliderRight)) {
+                let clientX: any = $event.clientX - this.sliderLeft;
+                if ((clientX < 0) || (clientX > this.pathLength)) {
                     return;
                 } else {
                     this.onMove(clientX);
@@ -57,6 +59,10 @@ export class SliderComponent {
 
     get thumbElement(): any {
         return this.dragDispatcher.handleRef.nativeElement;
+    }
+
+    get thumbWidth(): number {
+        return 10;
     }
 
     @ViewChild("slider")
