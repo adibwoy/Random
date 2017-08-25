@@ -11,26 +11,15 @@ import {Subscription} from "rxjs/Subscription";
 export class SliderComponent implements AfterViewInit {
 
     private subscriptions: Subscription[] = [];
-    private _sliderWidth: number = 0;
+    // private _sliderWidth: number = 0;
     private _slider: any;
     private _value: number = 0;
 
-    onDragStartPosition: number;
-
     constructor(private _ngZone: NgZone, private dragDispatcher: DragDispatcher, private renderer: Renderer2) {
-        this.subscriptions.push(
-            this.dragDispatcher.onDragStart.subscribe(($event) => {
-                this.onDragStartPosition = $event.screenX;
-                console.log(this.onDragStartPosition);
-            }));
 
         this.subscriptions.push(
             this.dragDispatcher.onDragMove.subscribe(($event) => {
                 this.onMove($event.clientX);
-            }));
-
-        this.subscriptions.push(
-            this.dragDispatcher.onDragEnd.subscribe(($event) => {
             }));
     }
 
@@ -55,11 +44,10 @@ export class SliderComponent implements AfterViewInit {
     }
 
     ngAfterViewInit() {
-        this._sliderWidth = this._slider.nativeElement.getBoundingClientRect().width;
+        // this._sliderWidth = this._slider.nativeElement.getBoundingClientRect().width;
     }
 
     onMove(value: number): void {
-        console.log("Set Value", value);
         this._ngZone.runOutsideAngular(() => {
             this.renderer.setStyle(this.dragDispatcher.handleRef.nativeElement, "left", value + "px");
         });
