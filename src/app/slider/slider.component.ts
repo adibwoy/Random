@@ -14,6 +14,8 @@ export class SliderComponent {
     private _slider: any;
     private _value: number = 0;
 
+    @Input("clrStep") noOfSteps: number = 1391;
+
     private _sliderClientRect: ClientRect;
 
     get sliderLeft(): number {
@@ -26,6 +28,19 @@ export class SliderComponent {
 
     get pathLength(): number {
         return (this.sliderRight - this.sliderLeft - this.thumbWidth);
+    }
+
+    get stepDistance(): number {
+        return this.pathLength / this.noOfSteps;
+    }
+
+    get currentThumbPosition(): number {
+        return this.thumbElement.getBoundingClientRect().left - this.sliderLeft;
+    }
+
+    // +ve or -ve & if it is > stepDistance / 2 then move thumb
+    getDragDistance(mousePosition: number): number {
+        return mousePosition - this.currentThumbPosition;
     }
 
     constructor(private _ngZone: NgZone, private dragDispatcher: DragDispatcher, private renderer: Renderer2) {
@@ -41,20 +56,18 @@ export class SliderComponent {
                 if ((clientX < 0) || (clientX > this.pathLength)) {
                     return;
                 } else {
-                    this.value = clientX;
-                    this.onMove(this.value);
+                    const dist: number = this.getDragDistance(clientX);
+                    if (dist > this.stepDistance / 2) {
+                        this.onMove(this.currentThumbPosition + this.stepDistance);
+                    } else if (dist < this.stepDistance / 2) {
+                        this.onMove(this.currentThumbPosition - this.stepDistance);
+                    }
                 }
             }));
     }
 
     @Input("clrValue")
     set value(val: number) {
-        // TODO: Add type guards for left and right value
-        this._value = val;
-        this
-            .renderer
-            .setStyle(
-                this.thumbElement, "transform", `translate3d(${val}px, -50%, 0)`);
     }
 
     @ViewChild("thumb")
@@ -77,6 +90,7 @@ export class SliderComponent {
     }
 
     onMove(value: number): void {
+        console.log(value);
         this._ngZone.runOutsideAngular(() => {
             this
                 .renderer
