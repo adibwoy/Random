@@ -14,7 +14,7 @@ export class SliderComponent {
     private _slider: any;
     private _value: number = 0;
 
-    @Input("clrStep") noOfSteps: number = 1391;
+    @Input("clrStep") noOfSteps: number = 10;
 
     private _sliderClientRect: ClientRect;
 
@@ -35,8 +35,15 @@ export class SliderComponent {
     }
 
     get currentThumbPosition(): number {
-        return this.thumbElement.getBoundingClientRect().left - this.sliderLeft;
+        return this.pathLength * (this.value / this.max);
     }
+
+    get valueIncrement(): number {
+        return this.max / this.noOfSteps;
+    }
+
+    min: number = 0;
+    max: number = 100;
 
     // +ve or -ve & if it is > stepDistance / 2 then move thumb
     getDragDistance(mousePosition: number): number {
@@ -58,16 +65,23 @@ export class SliderComponent {
                 } else {
                     const dist: number = this.getDragDistance(clientX);
                     if (dist > this.stepDistance / 2) {
-                        this.onMove(this.currentThumbPosition + this.stepDistance);
-                    } else if (dist < this.stepDistance / 2) {
-                        this.onMove(this.currentThumbPosition - this.stepDistance);
+                        this.value = this.value + this.valueIncrement;
+                        this.onMove(this.currentThumbPosition);
+                    } else if ((-1 * dist) > this.stepDistance / 2) {
+                        this.value = this.value - this.valueIncrement;
+                        this.onMove(this.currentThumbPosition);
                     }
                 }
             }));
     }
 
+    get value(): number {
+        return this._value;
+    }
+
     @Input("clrValue")
     set value(val: number) {
+        this._value = val;
     }
 
     @ViewChild("thumb")
@@ -90,7 +104,6 @@ export class SliderComponent {
     }
 
     onMove(value: number): void {
-        console.log(value);
         this._ngZone.runOutsideAngular(() => {
             this
                 .renderer
