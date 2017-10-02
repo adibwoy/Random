@@ -71,15 +71,11 @@ export class SliderComponent {
                     // dragDistance will be updated for each steps relative to within that stepDistance;
                     // so dragDistance will never be greater than stepDistance or less than negative stepDistance
                     const dragDistance: number = this.getDragDistance(newMousePosOnPath);
+                    const dragValue: number = dragDistance / this.pathLength * this.maxValue;
 
-                    if (dragDistance > this.stepDistance / 2) {
+                    if (Math.abs(dragDistance) > this.stepDistance / 2) {
 
-                        this.currentValue = this.currentValue + this.valueIncrement;
-                        this.onMove(this.currentThumbPosOnPath);
-
-                    } else if ((-1 * dragDistance) > this.stepDistance / 2) {
-
-                        this.currentValue = this.currentValue - this.valueIncrement;
+                        this.currentValue = this.currentValue + dragValue;
                         this.onMove(this.currentThumbPosOnPath);
 
                     }
