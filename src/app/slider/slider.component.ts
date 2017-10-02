@@ -1,6 +1,6 @@
-import {Component, ElementRef, Input, NgZone, Renderer2, ViewChild} from '@angular/core';
-import {DragDispatcher} from "clarity-angular/data/datagrid/providers/drag-dispatcher"
-import {Subscription} from "rxjs/Subscription";
+import { Component, ElementRef, Input, NgZone, Renderer2, ViewChild } from '@angular/core';
+import { DragDispatcher } from "clarity-angular/data/datagrid/providers/drag-dispatcher"
+import { Subscription } from "rxjs/Subscription";
 
 @Component({
     selector: 'app-slider',
@@ -16,7 +16,7 @@ export class SliderComponent {
     minValue: number = 0;
     maxValue: number = 100;
 
-    @Input("clrStep") noOfSteps: number = 10;
+    @Input("clrStep") noOfSteps: number = 13;
 
     private _sliderClientRect: ClientRect;
 
@@ -68,12 +68,17 @@ export class SliderComponent {
                     return;
                 } else {
 
-                    // dragDistance will be updated for each steps relative to within that stepDistance;
-                    // so dragDistance will never be greater than stepDistance or less than negative stepDistance
-                    const dragDistance: number = this.getDragDistance(newMousePosOnPath);
-                    const dragValue: number = dragDistance / this.pathLength * this.maxValue;
+                    // dragged distance in PX -> dragged distance in Steps -> dragged distance in Value
 
-                    if (Math.abs(dragDistance) > this.stepDistance / 2) {
+                    const dragDistanceInPX: number = this.getDragDistance(newMousePosOnPath);
+
+                    const whichRounded = dragDistanceInPX > 0 ? "ceil" : "floor";
+
+                    const dragDistanceInSteps = Math[whichRounded](dragDistanceInPX / this.stepDistance) * this.stepDistance;
+
+                    const dragValue: number = dragDistanceInSteps / this.pathLength * this.maxValue;
+
+                    if (Math.abs(dragDistanceInPX) > this.stepDistance / 2) {
 
                         this.currentValue = this.currentValue + dragValue;
                         this.onMove(this.currentThumbPosOnPath);
