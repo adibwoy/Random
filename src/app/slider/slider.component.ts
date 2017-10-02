@@ -13,6 +13,8 @@ export class SliderComponent {
     private subscriptions: Subscription[] = [];
     private _slider: any;
     private _currentValue: number = 0;
+    minValue: number = 0;
+    maxValue: number = 100;
 
     @Input("clrStep") noOfSteps: number = 10;
 
@@ -34,7 +36,7 @@ export class SliderComponent {
         return this.pathLength / this.noOfSteps;
     }
 
-    get currentThumbPosition(): number {
+    get currentThumbPosOnPath(): number {
         return this.pathLength * (this.currentValue / this.maxValue);
     }
 
@@ -42,12 +44,12 @@ export class SliderComponent {
         return this.maxValue / this.noOfSteps;
     }
 
-    minValue: number = 0;
-    maxValue: number = 100;
+    getMousePosOnPath($event: MouseEvent): number {
+        return $event.clientX - this.sliderLeft;
+    }
 
-    // +ve or -ve & if it is > stepDistance / 2 then move thumb
     getDragDistance(mousePosition: number): number {
-        return mousePosition - this.currentThumbPosition;
+        return mousePosition - this.currentThumbPosOnPath;
     }
 
     constructor(private _ngZone: NgZone, private dragDispatcher: DragDispatcher, private renderer: Renderer2) {
@@ -59,17 +61,27 @@ export class SliderComponent {
 
         this.subscriptions.push(
             this.dragDispatcher.onDragMove.subscribe(($event) => {
-                let clientX: any = $event.clientX - this.sliderLeft;
-                if ((clientX < 0) || (clientX > this.pathLength)) {
+
+                const newMousePosOnPath: number = this.getMousePosOnPath($event);
+
+                if ((newMousePosOnPath < 0) || (newMousePosOnPath > this.pathLength)) {
                     return;
                 } else {
-                    const dist: number = this.getDragDistance(clientX);
-                    if (dist > this.stepDistance / 2) {
+
+                    // dragDistance will be updated for each steps relative to within that stepDistance;
+                    // so dragDistance will never be greater than stepDistance or less than negative stepDistance
+                    const dragDistance: number = this.getDragDistance(newMousePosOnPath);
+
+                    if (dragDistance > this.stepDistance / 2) {
+
                         this.currentValue = this.currentValue + this.valueIncrement;
-                        this.onMove(this.currentThumbPosition);
-                    } else if ((-1 * dist) > this.stepDistance / 2) {
+                        this.onMove(this.currentThumbPosOnPath);
+
+                    } else if ((-1 * dragDistance) > this.stepDistance / 2) {
+
                         this.currentValue = this.currentValue - this.valueIncrement;
-                        this.onMove(this.currentThumbPosition);
+                        this.onMove(this.currentThumbPosOnPath);
+
                     }
                 }
             }));
