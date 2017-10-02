@@ -12,7 +12,7 @@ export class SliderComponent {
 
     private subscriptions: Subscription[] = [];
     private _slider: any;
-    private _value: number = 0;
+    private _currentValue: number = 0;
 
     @Input("clrStep") noOfSteps: number = 10;
 
@@ -35,15 +35,15 @@ export class SliderComponent {
     }
 
     get currentThumbPosition(): number {
-        return this.pathLength * (this.value / this.max);
+        return this.pathLength * (this.currentValue / this.maxValue);
     }
 
     get valueIncrement(): number {
-        return this.max / this.noOfSteps;
+        return this.maxValue / this.noOfSteps;
     }
 
-    min: number = 0;
-    max: number = 100;
+    minValue: number = 0;
+    maxValue: number = 100;
 
     // +ve or -ve & if it is > stepDistance / 2 then move thumb
     getDragDistance(mousePosition: number): number {
@@ -65,23 +65,23 @@ export class SliderComponent {
                 } else {
                     const dist: number = this.getDragDistance(clientX);
                     if (dist > this.stepDistance / 2) {
-                        this.value = this.value + this.valueIncrement;
+                        this.currentValue = this.currentValue + this.valueIncrement;
                         this.onMove(this.currentThumbPosition);
                     } else if ((-1 * dist) > this.stepDistance / 2) {
-                        this.value = this.value - this.valueIncrement;
+                        this.currentValue = this.currentValue - this.valueIncrement;
                         this.onMove(this.currentThumbPosition);
                     }
                 }
             }));
     }
 
-    get value(): number {
-        return this._value;
+    get currentValue(): number {
+        return this._currentValue;
     }
 
     @Input("clrValue")
-    set value(val: number) {
-        this._value = val;
+    set currentValue(val: number) {
+        this._currentValue = val;
     }
 
     @ViewChild("thumb")
