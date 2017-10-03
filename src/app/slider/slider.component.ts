@@ -16,7 +16,7 @@ export class SliderComponent {
     minValue: number = 0;
     maxValue: number = 100;
 
-    @Input("clrStep") noOfSteps: number = 13;
+    @Input("clrStep") noOfSteps: number = 1300;
 
     private _sliderClientRect: ClientRect;
 
